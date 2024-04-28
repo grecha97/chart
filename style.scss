@@ -1,0 +1,101 @@
+@import 'template';
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #1e2736;
+    color: #c7c7ce;
+    font-family: 'Montserrat', sans-serif;
+}
+
+h1 {
+    text-align: center;
+    margin: 1rem;
+    padding: 1.5rem;
+    font-size: 2.5rem;
+}
+
+.container {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+
+    .graph-container {
+        width: 55%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem; 
+        .lineChart, .barChart {
+            margin: 2rem;
+            @include border-styles(0 8px 16px rgba(255, 255, 255, 0.346));
+            padding: 1.3rem;
+        }
+        .titleInflation, .titleIncome{
+            @include title-styles;
+        }
+    }
+
+    .sidebar {
+        width: 40%;
+        height: 100%;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: start;
+
+        .titleBudget{
+            @include title-styles;
+        }
+    
+        .diagramm {
+            max-width: 100%;
+            width: 100%;
+            max-height: 50%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+
+            .pieChart {
+                width: 100%;
+            }
+        }
+        .titleRates{
+            @include title-styles;
+            padding-bottom: 1rem;
+        }
+        .cards {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;            
+    
+            .cardOne, .cardTwo {
+                width: 48%;
+                margin: 1rem;
+                padding: .5rem;
+                text-align: center;
+                @include border-styles(0 4px 8px rgba(0, 0, 0, 0.622));
+                p {
+                    font-size: .6rem;
+                    padding: 1rem;
+                }
+                .titleCards {
+                    margin: .5rem;
+                    font-size: 1.5rem;
+                }
+                .budgetChart, .debtChart {
+                    width: 100%
+                }
+            }
+        }
+    }
+}

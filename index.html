@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.scss">
+  <title>Document</title>
+</head>
+<body>
+  <h1>Socio-economic Indicators - US</h1>
+    <div class="container">
+
+      <div class="graph-container">
+        <h2 class="titleInflation">US inflation rates: 2000 - 2023</h2>
+        <canvas class="lineChart"></canvas> 
+        <h2 class="titleIncome"> Annual income statements: 2013 - 2022</h2>
+        <canvas class="barChart"></canvas>
+      </div>
+
+        <div class="sidebar">
+          <h2 class="titleBudget">Federal Budget Distribution 2023 (%)</h2>
+          <div class="diagramm">
+            <canvas class="pieChart"></canvas>
+          </div>
+          
+          <h2 class="titleRates"> Current dynamic rates</h2>
+          <div class="cards">
+            <div class="cardOne">
+              <p>FY 2024 OBLIGATED AMOUNT</p>
+              <h2 class="titleCards">$3.8 Trillion</h2>
+              <p>Data as of February 29, 2024</p>
+              <canvas class="budgetChart"></canvas>
+            </div>
+            <div class="cardTwo">
+              <p>Public debt of the United States</p>
+              <h2 class="titleCards">$33.1 Trillion</h2>
+              <p>Data as of Apr 9, 2024</p>
+              <canvas class="debtChart"></canvas>
+            </div>
+
+          </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+
+
+
+let canvas = window.document.querySelector('.lineChart');
+let context = canvas.getContext('2d');
+
+const createLineChart = (xData, yData) => {
+  let pointColors = yData.map(value => value < 0 ? 'rgb(207, 37, 95)' : 'rgba(98, 224, 164, 0.5)');
+  let data = {
+    labels: xData,
+    datasets: [{
+      label: 'Inflation - US Consumer Prices',
+      data: yData,
+      pointStyle: 'circle', 
+      fill: false,
+      borderColor: pointColors,
+      borderWidth: 2,
+      pointBackgroundColor: pointColors,
+      pointRadius: 5,
+      pointHoverRadius: 8,
+    }]
+  };
+
+  let config = {
+    type: 'line',
+    data: data,
+    options: {
+      animation: {
+        duration: 2000,
+        easing: 'easeInOutBounce',
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+      
+    }
+  };
+
+  let chart = new Chart(context, config);
+};
+
+axios.get('https://www.alphavantage.co/query?function=INFLATION&apikey=demo')
+.then((response)=>{
+  let data = response.data.data;
+  let xData = [];
+  let yData = [];
+  for(let i = data.length - 1; i > 0; i--){
+    if(data[i].date > '1999-01-01'){
+      xData.push(new Date(data[i].date).getFullYear());
+      yData.push(data[i].value);
+    }
+  }
+  createLineChart(xData, yData);
+});
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+let canvasBar = document.querySelector('.barChart');
+    let contextBar = canvasBar.getContext('2d');
+
+    const createBarChart = (xData, yData) => {
+      const minIndex = yData.indexOf(Math.min(...yData));
+      let data = {
+        labels: xData,
+        datasets: [{
+          label: 'INCOME STATEMENT',
+          data: yData,
+          fill: true,
+          backgroundColor: yData.map((value, index) => index === minIndex ? 'darkpurple' : 'rgba(238, 130, 238, 0.4)'),
+          borderColor: 'rgba(238, 130, 238, 1)',
+          borderWidth: 1.5
+        }]
+      }
+      let config = {
+        type: 'bar',
+        data: data,
+        options: {
+          animation: {
+        duration: 2000,
+        easing: 'easeInBounce',
+      },
+          scales: {
+            y: {
+          ticks: {
+            callback: function(value, index, values) {
+              if (value === 0) return '0 млн $';
+              return value.toFixed(Math.max(0, -Math.log10(value / 10))) + ' млн $';
+            }
+          },
+          beginAtZero: true,
+        }
+      }
+    }
+  }
+    let chart = new Chart(contextBar, config);
+    }
+
+    axios.get('https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol=IBM&apikey=demo')
+      .then((response)=>{
+        let data = response.data.annualReports;
+        let xData = [];
+        let yData = [];
+        for(let i = data.length - 1; i > 0; i--){
+          if(data[i].fiscalDateEnding > '2013-01-01'){
+            xData.push(new Date(data[i].fiscalDateEnding).getFullYear());
+            yData.push(data[i].grossProfit / 100000000);
+          }
+        }
+        createBarChart(xData, yData);
+    });
+
+    //////////////////////////////////////////////////////////////////////////////////
+    let canvasPie = document.querySelector('.pieChart');
+    let contextPie = canvasPie.getContext('2d');
+
+    let data = {
+  labels: ['Social Security', 'Medicare', 'National Defence', 'Health', 'Net Interest'],
+  datasets: [{
+    label: 'Spending',
+    data: [16.5, 15.4, 15.5, 13.9, 11],
+    backgroundColor: [
+      '#62E0A4',
+      '#1d81a2',
+      '#f6aa54',
+      '#CD9ED6',
+      '#1774eb'
+    ],
+    borderWidth: 0,
+  }]
+};
+
+let options = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: 'right',
+      labels: {
+        font: {
+          size: 16,
+        },
+      }
+    },
+    title: {
+      display: false,
+    },
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          let label = context.label || '';
+          if (label) {
+            label += ': ';
+          }
+          label += context.parsed.toFixed(1) + '%'; // Выводим процент внутри сегмента
+          return label;
+        }
+      }
+    }
+  }
+};
+
+
+let pieChart = new Chart(contextPie, {
+  type: 'doughnut',
+  data: data,
+  options: options
+});
+
+// //////////////////////////////////////////////////////
+
+const canvasBudget = document.querySelector('.budgetChart');
+const contextBudget = canvasBudget.getContext('2d');
+
+const createBudgetChart = (xData, yData) => {
+  let data = {
+    labels: xData,
+    datasets: [{
+      data: yData,
+      fill: false,
+      pointStyle: false,
+      borderColor: 'darkgreen',
+      borderWidth: 1,
+    }]
+  };
+
+  let config = {
+    type: 'line',
+    data: data,
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      },
+      plugins: {
+        legend: {
+          display: false,
+        }
+      }
+    }
+  };
+
+  new Chart(contextBudget, config);
+};
+
+let xData = ['2020', '2021', '2022', '2023', '2024'];
+let yData = [1.4, 6.5, 2.7, 5, 3, 7];
+createBudgetChart(xData, yData);
+
+// ///////////////////////////////////////////////////////////////////
+
+const canvasDebt = document.querySelector('.debtChart');
+const contextDebt = canvasDebt.getContext('2d');
+
+const createDebtChart = (aData, bData) => {
+  let data = {
+    labels: aData,
+    datasets: [{
+      data: bData,
+      fill: false,
+      pointStyle: false,
+      borderColor: 'darkred',
+      borderWidth: 1,
+    }]
+  };
+
+  let config = {
+    type: 'line',
+    data: data,
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      },
+      plugins: {
+        legend: {
+          display: false,
+        }
+      }
+    }
+  };
+
+  new Chart(contextDebt, config);
+};
+
+let aData = ['2020', '2021', '2022', '2023', '2024'];
+let bData = [5, 1.3, 3.2, 7, 3, 1];
+createDebtChart(aData, bData);
+
+
+
+
+    </script>
+  </body>

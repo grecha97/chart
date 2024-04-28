@@ -1,0 +1,11 @@
+@mixin title-styles {
+    font-size: 1.3rem;
+    color: #c7c7ce95;
+    padding-bottom: 1rem;
+};
+
+@mixin border-styles($shadow) {
+    border: none;
+    box-shadow: $shadow;
+    border-radius: 10px;
+}
